@@ -56,7 +56,7 @@ namespace Orthanc
     HttpOutput& output,
     RequestOrigin /*origin*/,
     const char* /*remoteIp*/,
-    const char* /*username*/,
+    int /*username*/,
     HttpMethod method,
     const UriComponents& uri,
     const Arguments& headers,
@@ -81,11 +81,21 @@ namespace Orthanc
 
     try
     {
+		/*
+#include <fstream>
+		std::fstream t("D:\\test"+resourcePath);
+		t.seekg(0,std::ios::end);
+		size_t size = t.tellg(); 
+		t.seekg(0,std::ios::beg);
+		char* buffer = new char[size];
+		t.read(buffer,size);
+		t.close();
+*/
       const void* buffer = EmbeddedResources::GetDirectoryResourceBuffer(resourceId_, resourcePath.c_str());
       size_t size = EmbeddedResources::GetDirectoryResourceSize(resourceId_, resourcePath.c_str());
-
+	  
       output.SetContentType(contentType.c_str());
-      output.Answer(buffer, size);
+      output.Answer((void *)buffer, size);
     }
     catch (OrthancException&)
     {

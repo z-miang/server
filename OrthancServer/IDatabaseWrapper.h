@@ -67,7 +67,8 @@ namespace Orthanc
     virtual void ClearExportedResources() = 0;
 
     virtual int64_t CreateResource(const std::string& publicId,
-                                   ResourceType type) = 0;
+                                   ResourceType type,
+                                   int userId) = 0;
 
     virtual void DeleteAttachment(int64_t id,
                                   FileContentType attachment) = 0;
@@ -200,5 +201,26 @@ namespace Orthanc
 
     virtual void Upgrade(unsigned int targetVersion,
                          IStorageArea& storageArea) = 0;
+
+    virtual int getUserId(const std::string& name) = 0;
+    virtual int SignUp(const std::string& name,const std::string& pswd,const std::string& email) = 0;
+    virtual int SignIn(const std::string& name,const std::string& pswd) = 0;
+	virtual std::string getUserMail(const int id) = 0;
+	virtual int GetScanTimes(const std::string& name) = 0;
+	virtual int TopUp(const std::string& name,const std::string& key) = 0;
+	virtual bool Reduce(const std::string& name) = 0;
+	virtual int Produce(const std::string& md5,const int credit) = 0;
+	virtual void GetTableInfo(std::vector<Json::Value>& r,const std::string& t_name) = 0;
+
+    virtual void GetUserPublicIds(std::list<std::string>& target,
+                                 ResourceType resourceType,
+								 int) = 0;
+
+    virtual void GetUserPublicIds(std::list<std::string>& target,
+                                 ResourceType resourceType,
+		                         int,
+                                 size_t since,
+                                 size_t limit) = 0;
+
   };
 }

@@ -53,7 +53,7 @@ namespace Orthanc
     virtual bool Handle(HttpOutput& output,
                         RequestOrigin origin,
                         const char* remoteIp,
-                        const char* username,
+                        int userId,
                         HttpMethod method,
                         const UriComponents& uri,
                         const Arguments& headers,

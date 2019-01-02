@@ -67,11 +67,13 @@ namespace Orthanc
   }
 
   int64_t DatabaseWrapperBase::CreateResource(const std::string& publicId,
-                                              ResourceType type)
+                                              ResourceType type,
+	                                          int userId)
   {
-    SQLite::Statement s(db_, SQLITE_FROM_HERE, "INSERT INTO Resources VALUES(NULL, ?, ?, NULL)");
+    SQLite::Statement s(db_, SQLITE_FROM_HERE, "INSERT INTO Resources VALUES(NULL, ?, ?, NULL,?)");
     s.BindInt(0, type);
     s.BindString(1, publicId);
+    s.BindInt(2, userId);
     s.Run();
     return db_.GetLastInsertRowId();
   }
@@ -584,6 +586,45 @@ namespace Orthanc
     }
   }
 
+  void DatabaseWrapperBase::GetUserPublicIds(std::list<std::string>& target,
+                                            ResourceType resourceType,
+											int userId)
+  {
+    SQLite::Statement s(db_, SQLITE_FROM_HERE, "SELECT publicId FROM Resources WHERE resourceType=? AND userId=?");
+    s.BindInt(0, resourceType);
+    s.BindInt(1, userId);
+
+    target.clear();
+    while (s.Step())
+    {
+      target.push_back(s.ColumnString(0));
+    }
+  }
+
+  void DatabaseWrapperBase::GetUserPublicIds(std::list<std::string>& target,
+                                            ResourceType resourceType,
+											int userId,
+                                            size_t since,
+                                            size_t limit)
+  {
+    if (limit == 0)
+    {
+      target.clear();
+      return;
+    }
+
+    SQLite::Statement s(db_, SQLITE_FROM_HERE, "SELECT publicId FROM Resources WHERE resourceType=? AND userId=? LIMIT ? OFFSET ?");
+    s.BindInt(0, resourceType);
+    s.BindInt(1, userId);
+    s.BindInt64(2, limit);
+    s.BindInt64(3, since);
+
+    target.clear();
+    while (s.Step())
+    {
+      target.push_back(s.ColumnString(0));
+    }
+  }
 
   uint64_t DatabaseWrapperBase::GetResourceCount(ResourceType resourceType)
   {

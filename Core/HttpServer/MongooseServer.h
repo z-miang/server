@@ -48,6 +48,7 @@
 
 
 #include "IIncomingHttpRequestFilter.h"
+#include "IUserAuthFilter.h"
 
 #include "../OrthancException.h"
 
@@ -97,6 +98,8 @@ namespace Orthanc
     bool httpCompression_;
     IHttpExceptionFormatter* exceptionFormatter_;
   
+    IUserAuthFilter* userAuth_;
+
     bool IsRunning() const;
 
   public:
@@ -168,6 +171,12 @@ namespace Orthanc
     }
 
     void SetIncomingHttpRequestFilter(IIncomingHttpRequestFilter& filter);
+
+    IUserAuthFilter* GetUserAuthFilter() const
+    {
+      return userAuth_;
+    }
+    void SetUserAuthFilter(IUserAuthFilter& filter);
 
     ChunkStore& GetChunkStore();
 

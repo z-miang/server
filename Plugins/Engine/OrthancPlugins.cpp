@@ -830,7 +830,7 @@ namespace Orthanc
   bool OrthancPlugins::Handle(HttpOutput& output,
                               RequestOrigin /*origin*/,
                               const char* /*remoteIp*/,
-                              const char* /*username*/,
+                              int /*username*/,
                               HttpMethod method,
                               const UriComponents& uri,
                               const Arguments& headers,

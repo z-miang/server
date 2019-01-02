@@ -115,7 +115,8 @@ namespace Orthanc
     uint64_t IncrementGlobalSequenceInternal(GlobalProperty property);
 
     int64_t CreateResource(const std::string& publicId,
-                           ResourceType type);
+                           ResourceType type,
+                           int userId);
 
     void SetInstanceMetadata(std::map<MetadataType, std::string>& instanceMetadata,
                              int64_t instance,
@@ -165,6 +166,15 @@ namespace Orthanc
 
     void GetAllUuids(std::list<std::string>& target,
                      ResourceType resourceType,
+                     size_t since,
+                     size_t limit);
+
+    void GetAllUuids(std::list<std::string>& target,
+                     ResourceType resourceType,
+		             int);
+    void GetAllUuids(std::list<std::string>& target,
+                     ResourceType resourceType,
+		             int,
                      size_t since,
                      size_t limit);
 
@@ -277,5 +287,15 @@ namespace Orthanc
                       ResourceType parentType);
 
     void ReconstructInstance(ParsedDicomFile& dicom);
+
+	int getUserId(const std::string& name);
+    int SignUp(const std::string& name,const std::string& pswd,const std::string& email);
+    int SignIn(const std::string& name,const std::string& pswd);
+	std::string getUserMail(const int id);
+	int GetScanTimes(const std::string& name);
+	int TopUp(const std::string& name,const std::string& key);
+	bool Reduce(const std::string& name);
+	int Produce(const std::string& md5,const int credit);
+	void GetTableInfo(std::vector<Json::Value>& r,const std::string& t_name);
   };
 }

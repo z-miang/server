@@ -149,7 +149,7 @@ namespace Orthanc
     std::string remoteIp_;
     std::string dicomRemoteAet_;
     std::string dicomCalledAet_;
-    std::string httpUsername_;
+    int httpUserId_;
     ServerIndex::MetadataMap metadata_;
 
     void ComputeMissingInformation();
@@ -212,6 +212,11 @@ namespace Orthanc
     {
       return metadata_;
     }
+
+    int GetUserId()
+    {
+      return httpUserId_;
+    }	
 
     const char* GetBufferData();
 

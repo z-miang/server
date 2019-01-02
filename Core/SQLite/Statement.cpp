@@ -147,6 +147,7 @@ namespace Orthanc
       return CheckError(sqlite3_step(GetStatement()), ErrorCode_SQLiteCannotStep) == SQLITE_ROW;
     }
 
+	
     void Statement::Reset(bool clear_bound_vars) 
     {
       // We don't call CheckError() here because sqlite3_reset() returns

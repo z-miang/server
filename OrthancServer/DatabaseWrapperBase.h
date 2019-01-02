@@ -79,7 +79,8 @@ namespace Orthanc
                               GlobalProperty property);
 
     int64_t CreateResource(const std::string& publicId,
-                           ResourceType type);
+                           ResourceType type,
+						   int userId);
 
     bool LookupResource(int64_t& id,
                         ResourceType& type,
@@ -177,6 +178,16 @@ namespace Orthanc
 
     void GetAllPublicIds(std::list<std::string>& target,
                          ResourceType resourceType,
+                         size_t since,
+                         size_t limit);
+
+    void GetUserPublicIds(std::list<std::string>& target,
+                         ResourceType resourceType,
+						 int);
+
+    void GetUserPublicIds(std::list<std::string>& target,
+                         ResourceType resourceType,
+		                 int,
                          size_t since,
                          size_t limit);
 

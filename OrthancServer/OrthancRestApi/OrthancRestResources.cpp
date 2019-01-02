@@ -139,11 +139,11 @@ namespace Orthanc
 
       size_t since = boost::lexical_cast<size_t>(call.GetArgument("since", ""));
       size_t limit = boost::lexical_cast<size_t>(call.GetArgument("limit", ""));
-      index.GetAllUuids(result, resourceType, since, limit);
+      index.GetAllUuids(result, resourceType, call.GetUserId(), since, limit);
     }
     else
     {
-      index.GetAllUuids(result, resourceType);
+      index.GetAllUuids(result, resourceType, call.GetUserId());
     }
 
 
@@ -767,7 +767,7 @@ namespace Orthanc
       // Return the raw data (possibly compressed), as stored on the filesystem
       std::string content;
       context.ReadAttachment(content, publicId, type, false);
-      call.GetOutput().AnswerBuffer(content, "application/octet-stream");
+      call.GetOutput().AnswerBuffer(content, "application/zip", publicId+".zip");
     }
   }
 
@@ -1433,7 +1433,7 @@ namespace Orthanc
     // Loop over the instances, grouping them by parent studies so as
     // to avoid large memory consumption
     std::list<std::string> studies;
-    index.GetAllUuids(studies, ResourceType_Study);
+    index.GetAllUuids(studies, ResourceType_Study, call.GetUserId());
 
     for (std::list<std::string>::const_iterator 
            study = studies.begin(); study != studies.end(); ++study)
@@ -1459,10 +1459,10 @@ namespace Orthanc
     ServerToolbox::ReconstructResource(context, call.GetUriComponent("id", ""));
     call.GetOutput().AnswerBuffer("", "text/plain");
   }
-
-
+  
   void OrthancRestApi::RegisterResources()
   {
+	 
     Register("/instances", ListResources<ResourceType_Instance>);
     Register("/patients", ListResources<ResourceType_Patient>);
     Register("/series", ListResources<ResourceType_Series>);

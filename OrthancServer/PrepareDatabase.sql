@@ -7,8 +7,25 @@ CREATE TABLE Resources(
        internalId INTEGER PRIMARY KEY AUTOINCREMENT,
        resourceType INTEGER,
        publicId TEXT,
-       parentId INTEGER REFERENCES Resources(internalId) ON DELETE CASCADE
+       parentId INTEGER REFERENCES Resources(internalId) ON DELETE CASCADE,
+       userId INTEGER
        );
+
+CREATE TABLE Users(
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       name TEXT,
+       pswd TEXT,
+       mail TEXT,
+       level INTEGER,
+       logon DATETIME,
+	   scan_times INTEGER DEFAULT 0
+       );
+	   
+CREATE TABLE Cards(
+	   id INTEGER PRIMARY KEY AUTOINCREMENT,
+	   key TEXT NOT NULL,
+	   value INTEGER NOT NULL
+	   );
 
 CREATE TABLE MainDicomTags(
        id INTEGER REFERENCES Resources(internalId) ON DELETE CASCADE,
@@ -123,4 +140,4 @@ END;
 
 -- Set the version of the database schema
 -- The "1" corresponds to the "GlobalProperty_DatabaseSchemaVersion" enumeration
-INSERT INTO GlobalProperties VALUES (1, "6");
+INSERT INTO GlobalProperties VALUES (1, "7");

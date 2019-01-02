@@ -500,9 +500,10 @@ namespace Orthanc
 
 
   int64_t ServerIndex::CreateResource(const std::string& publicId,
-                                      ResourceType type)
+                                      ResourceType type,
+                                      int userId)
   {
-    int64_t id = db_.CreateResource(publicId, type);
+    int64_t id = db_.CreateResource(publicId, type, userId);
 
     ChangeType changeType;
     switch (type)
@@ -614,6 +615,7 @@ namespace Orthanc
 
     const DicomMap& dicomSummary = instanceToStore.GetSummary();
     const ServerIndex::MetadataMap& metadata = instanceToStore.GetMetadata();
+    int userId = instanceToStore.GetUserId();
 
     instanceMetadata.clear();
 
@@ -646,7 +648,7 @@ namespace Orthanc
       Recycle(instanceSize, hasher.HashPatient());
 
       // Create the instance
-      int64_t instance = CreateResource(hasher.HashInstance(), ResourceType_Instance);
+      int64_t instance = CreateResource(hasher.HashInstance(), ResourceType_Instance,userId);
       ServerToolbox::StoreMainDicomTags(db_, instance, ResourceType_Instance, dicomSummary);
 
       // Detect up to which level the patient/study/series/instance
@@ -698,21 +700,21 @@ namespace Orthanc
       // Create the series if needed
       if (isNewSeries)
       {
-        series = CreateResource(hasher.HashSeries(), ResourceType_Series);
+        series = CreateResource(hasher.HashSeries(), ResourceType_Series,userId);
         ServerToolbox::StoreMainDicomTags(db_, series, ResourceType_Series, dicomSummary);
       }
 
       // Create the study if needed
       if (isNewStudy)
       {
-        study = CreateResource(hasher.HashStudy(), ResourceType_Study);
+        study = CreateResource(hasher.HashStudy(), ResourceType_Study,userId);
         ServerToolbox::StoreMainDicomTags(db_, study, ResourceType_Study, dicomSummary);
       }
 
       // Create the patient if needed
       if (isNewPatient)
       {
-        patient = CreateResource(hasher.HashPatient(), ResourceType_Patient);
+        patient = CreateResource(hasher.HashPatient(), ResourceType_Patient,userId);
         ServerToolbox::StoreMainDicomTags(db_, patient, ResourceType_Patient, dicomSummary);
       }
 
@@ -1131,6 +1133,13 @@ namespace Orthanc
     db_.GetAllPublicIds(target, resourceType);
   }
 
+  void ServerIndex::GetAllUuids(std::list<std::string>& target,
+                                ResourceType resourceType,
+	                            int userId)
+  {
+    boost::mutex::scoped_lock lock(mutex_);
+    db_.GetUserPublicIds(target, resourceType,userId);
+  }
 
   void ServerIndex::GetAllUuids(std::list<std::string>& target,
                                 ResourceType resourceType,
@@ -1145,6 +1154,22 @@ namespace Orthanc
 
     boost::mutex::scoped_lock lock(mutex_);
     db_.GetAllPublicIds(target, resourceType, since, limit);
+  }
+
+  void ServerIndex::GetAllUuids(std::list<std::string>& target,
+                                ResourceType resourceType,
+	                            int userId,
+                                size_t since,
+                                size_t limit)
+  {
+    if (limit == 0)
+    {
+      target.clear();
+      return;
+    }
+
+    boost::mutex::scoped_lock lock(mutex_);
+    db_.GetUserPublicIds(target, resourceType, userId, since, limit);
   }
 
 
@@ -2302,5 +2327,42 @@ namespace Orthanc
     {
       LOG(ERROR) << "EXCEPTION [" << e.What() << "]";
     }
+  }
+
+  int ServerIndex::getUserId(const std::string& name)
+  {
+    return db_.getUserId(name);
+  }
+  int ServerIndex::SignUp(const std::string& name,const std::string& pswd,const std::string& email)
+  {
+    return db_.SignUp(name,pswd,email);
+  }
+  int ServerIndex::SignIn(const std::string& name,const std::string& pswd)
+  {
+    return db_.SignIn(name,pswd);
+  }
+  std::string ServerIndex::getUserMail(const int id)
+  {
+    return db_.getUserMail(id);
+  }
+  int ServerIndex::GetScanTimes(const std::string& name)
+  {
+	  return db_.GetScanTimes(name);
+  }
+  int ServerIndex::TopUp(const std::string& name,const std::string& key)
+  {
+	  return db_.TopUp(name,key);
+  }
+  bool ServerIndex::Reduce(const std::string& name)
+  {
+	  return db_.Reduce(name);
+  }
+  int ServerIndex::Produce(const std::string& md5,const int credit)
+  {
+	  return db_.Produce(md5,credit);
+  }
+  void ServerIndex::GetTableInfo(std::vector<Json::Value>& r,const std::string& t_name)
+  {
+	  return db_.GetTableInfo(r,t_name);
   }
 }

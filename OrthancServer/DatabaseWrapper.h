@@ -45,7 +45,7 @@ namespace Orthanc
   {
     class SignalRemainingAncestor;
   }
-
+   
   /**
    * This class manages an instance of the Orthanc SQLite database. It
    * translates low-level requests into SQL statements. Mutual
@@ -89,9 +89,10 @@ namespace Orthanc
     }
 
     virtual int64_t CreateResource(const std::string& publicId,
-                                   ResourceType type)
+                                   ResourceType type,
+		                           int userId)
     {
-      return base_.CreateResource(publicId, type);
+      return base_.CreateResource(publicId, type, userId);
     }
 
     virtual bool LookupResource(int64_t& id,
@@ -360,6 +361,33 @@ namespace Orthanc
     
     bool GetParentPublicId(std::string& target,
                            int64_t id);
+
+	virtual int getUserId(const std::string& name);
+    virtual int SignUp(const std::string& name,const std::string& pswd,const std::string& email);
+    virtual int SignIn(const std::string& name,const std::string& pswd);
+	virtual std::string getUserMail(const int id);
+	virtual int GetScanTimes(const std::string& name);
+	virtual int TopUp(const std::string& name,const std::string& key);
+	virtual bool Reduce(const std::string& name);
+	virtual int  Produce(const std::string& md5,const int);
+	virtual void GetTableInfo(std::vector<Json::Value>& r,const std::string& t_name);
+
+	bool UpdateCREDIT(const std::string& name,const int count);
+    virtual void GetUserPublicIds(std::list<std::string>& target,
+                                 ResourceType resourceType,
+								 int userId)
+    {
+		base_.GetUserPublicIds(target, resourceType, userId);
+    }
+
+    virtual void GetUserPublicIds(std::list<std::string>& target,
+                                 ResourceType resourceType,
+		                         int userId,
+                                 size_t since,
+                                 size_t limit)
+    {
+		base_.GetUserPublicIds(target, resourceType, userId, since, limit);
+    }
 
   };
 }

@@ -102,6 +102,38 @@ namespace Orthanc
     OrthancRestApi::GetApi(call).AnswerStoredResource(call, publicId, ResourceType_Instance, status);
   }
 
+  static void UploadAslDicomFile(RestApiPostCall& call)
+  {
+    ServerContext& context = OrthancRestApi::GetContext(call);
+
+    if (call.GetBodySize() == 0)
+    {
+      return;
+    }
+
+    LOG(INFO) << "Receiving a DICOM file of " << call.GetBodySize() << " bytes through HTTP";
+
+	std::string fName = call.GetUriComponent("name", "");
+	//std::cout << fName << std::endl;
+	std::string folder = call.GetUriComponent("folder", "");
+	//std::cout << folder << std::endl;
+
+    // TODO Remove unneccessary memcpy
+    std::string postData(call.GetBodyData(), call.GetBodySize());
+
+    DicomInstanceToStore toStore;
+    toStore.SetRestOrigin(call);
+    toStore.SetBuffer(postData);
+
+	toStore.AddMetadata(ResourceType_Instance, MetadataType_Folder, fName);
+	toStore.AddMetadata(ResourceType_Instance, MetadataType_FileName, folder);
+
+    std::string publicId;
+    StoreStatus status = context.Store(publicId, toStore);
+
+    OrthancRestApi::GetApi(call).AnswerStoredResource(call, publicId, ResourceType_Instance, status);
+  }
+
 
 
   // Registration of the various REST handlers --------------------------------
@@ -118,8 +150,10 @@ namespace Orthanc
     RegisterModalities();
     RegisterAnonymizeModify();
     RegisterArchive();
+	RegisterAuth();
 
     Register("/instances", UploadDicomFile);
+	Register("/instances/{name}/of/{folder}", UploadAslDicomFile);
 
     // Auto-generated directories
     Register("/tools", RestApi::AutoListChildren);

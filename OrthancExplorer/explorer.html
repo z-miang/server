@@ -28,6 +28,7 @@
     <script src="libs/jquery-file-upload/js/jquery.fileupload.js"></script>
 
     <link rel="stylesheet" href="explorer.css" />
+    <link rel="stylesheet" href="upload.css" />
     <script src="file-upload.js"></script>
     <script src="explorer.js"></script>
     <script src="query-retrieve.js"></script>
@@ -37,7 +38,7 @@
     <div data-role="page" id="find-patients" >
       <div data-role="header" >
 	<h1><span class="orthanc-name"></span>Find a patient</h1>
-        <a href="#plugins" data-icon="grid" class="ui-btn-left" data-direction="reverse">Plugins</a>
+        <!-- <a href="#plugins" data-icon="grid" class="ui-btn-left" data-direction="reverse">Plugins</a> -->
         <div data-type="horizontal" data-role="controlgroup" class="ui-btn-right"> 
           <a href="#upload" data-icon="gear" data-role="button">Upload</a>
           <a href="#query-retrieve" data-icon="search" data-role="button">Query/Retrieve</a>
@@ -62,7 +63,7 @@
           <ul data-role="listview" data-inset="true">
             <li data-icon="arrow-r" data-theme="e"><a href="#" id="upload-button">Start the upload</a></li>
             <!--li data-icon="gear" data-theme="e"><a href="#" id="upload-abort" class="ui-disabled">Abort the current upload</a></li-->
-            <li data-icon="delete" data-theme="e"><a href="#" id="upload-clear">Clear the pending uploads</a></li>
+            <!-- <li data-icon="delete" data-theme="e"><a href="#" id="upload-clear">Clear the pending uploads</a></li> -->
           </ul>
           <div id="progress" class="ui-corner-all">
             <span class="bar ui-corner-all"></span>
@@ -101,7 +102,7 @@
               <ul data-role="listview" data-inset="true" data-theme="d" data-divider-theme="c">
                 <li data-role="list-divider">Interact</li>
                 <li data-icon="delete"><a href="#" id="patient-delete">Delete this patient</a></li>
-                <li data-icon="forward"><a href="#" id="patient-store">Send to remote modality</a></li>
+                <!-- <li data-icon="forward"><a href="#" id="patient-store">Send to remote modality</a></li> -->
                 <li data-icon="star"><a href="#" id="patient-anonymize">Anonymize</a></li>
               </ul>
 
@@ -151,7 +152,7 @@
               <ul data-role="listview" data-inset="true" data-theme="d" data-divider-theme="c">
                 <li data-role="list-divider">Interact</li>
                 <li data-icon="delete"><a href="#" id="study-delete">Delete this study</a></li>
-                <li data-icon="forward"><a href="#" id="study-store">Send to DICOM modality</a></li>
+                <!-- <li data-icon="forward"><a href="#" id="study-store">Send to DICOM modality</a></li> -->
                 <li data-icon="star"><a href="#" id="study-anonymize">Anonymize</a></li>
               </ul>
 
@@ -203,7 +204,7 @@
               <ul data-role="listview" data-inset="true" data-theme="d" data-divider-theme="c">
                 <li data-role="list-divider">Interact</li>
                 <li data-icon="delete"><a href="#" id="series-delete">Delete this series</a></li>
-                <li data-icon="forward"><a href="#" id="series-store">Send to DICOM modality</a></li>
+                <!-- <li data-icon="forward"><a href="#" id="series-store">Send to DICOM modality</a></li> -->
                 <li data-icon="star"><a href="#" id="series-anonymize">Anonymize</a></li>
               </ul>
 
@@ -256,7 +257,7 @@
               <ul data-role="listview" data-inset="true" data-theme="d" data-divider-theme="c">
                 <li data-role="list-divider">Interact</li>
                 <li data-icon="delete"><a href="#" id="instance-delete">Delete this instance</a></li>
-                <li data-icon="forward"><a href="#" id="instance-store">Send to DICOM modality</a></li>
+                <!-- <li data-icon="forward"><a href="#" id="instance-store">Send to DICOM modality</a></li> -->
               </ul>
 
               <ul data-role="listview" data-inset="true" data-theme="d" data-divider-theme="c">

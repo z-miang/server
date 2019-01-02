@@ -270,13 +270,13 @@ INSTANTIATE_TEST_CASE_P(DatabaseWrapperName,
 TEST_P(DatabaseWrapperTest, Simple)
 {
   int64_t a[] = {
-    index_->CreateResource("a", ResourceType_Patient),   // 0
-    index_->CreateResource("b", ResourceType_Study),     // 1
-    index_->CreateResource("c", ResourceType_Series),    // 2
-    index_->CreateResource("d", ResourceType_Instance),  // 3
-    index_->CreateResource("e", ResourceType_Instance),  // 4
-    index_->CreateResource("f", ResourceType_Instance),  // 5
-    index_->CreateResource("g", ResourceType_Study)      // 6
+    index_->CreateResource("a", ResourceType_Patient,0),   // 0
+    index_->CreateResource("b", ResourceType_Study,0),     // 1
+    index_->CreateResource("c", ResourceType_Series,0),    // 2
+    index_->CreateResource("d", ResourceType_Instance,0),  // 3
+    index_->CreateResource("e", ResourceType_Instance,0),  // 4
+    index_->CreateResource("f", ResourceType_Instance,0),  // 5
+    index_->CreateResource("g", ResourceType_Study,0)      // 6
   };
 
   ASSERT_EQ("a", index_->GetPublicId(a[0]));
@@ -475,14 +475,14 @@ TEST_P(DatabaseWrapperTest, Simple)
 TEST_P(DatabaseWrapperTest, Upward)
 {
   int64_t a[] = {
-    index_->CreateResource("a", ResourceType_Patient),   // 0
-    index_->CreateResource("b", ResourceType_Study),     // 1
-    index_->CreateResource("c", ResourceType_Series),    // 2
-    index_->CreateResource("d", ResourceType_Instance),  // 3
-    index_->CreateResource("e", ResourceType_Instance),  // 4
-    index_->CreateResource("f", ResourceType_Study),     // 5
-    index_->CreateResource("g", ResourceType_Series),    // 6
-    index_->CreateResource("h", ResourceType_Series)     // 7
+    index_->CreateResource("a", ResourceType_Patient,0),   // 0
+    index_->CreateResource("b", ResourceType_Study,0),     // 1
+    index_->CreateResource("c", ResourceType_Series,0),    // 2
+    index_->CreateResource("d", ResourceType_Instance,0),  // 3
+    index_->CreateResource("e", ResourceType_Instance,0),  // 4
+    index_->CreateResource("f", ResourceType_Study,0),     // 5
+    index_->CreateResource("g", ResourceType_Series,0),    // 6
+    index_->CreateResource("h", ResourceType_Series,0)     // 7
   };
 
   index_->AttachChild(a[0], a[1]);
@@ -529,7 +529,7 @@ TEST_P(DatabaseWrapperTest, PatientRecycling)
   for (int i = 0; i < 10; i++)
   {
     std::string p = "Patient " + boost::lexical_cast<std::string>(i);
-    patients.push_back(index_->CreateResource(p, ResourceType_Patient));
+    patients.push_back(index_->CreateResource(p, ResourceType_Patient,0));
     index_->AddAttachment(patients[i], FileInfo(p, FileContentType_Dicom, i + 10, 
                                                 "md5-" + boost::lexical_cast<std::string>(i)));
     ASSERT_FALSE(index_->IsProtectedPatient(patients[i]));
@@ -590,7 +590,7 @@ TEST_P(DatabaseWrapperTest, PatientProtection)
   for (int i = 0; i < 5; i++)
   {
     std::string p = "Patient " + boost::lexical_cast<std::string>(i);
-    patients.push_back(index_->CreateResource(p, ResourceType_Patient));
+    patients.push_back(index_->CreateResource(p, ResourceType_Patient,0));
     index_->AddAttachment(patients[i], FileInfo(p, FileContentType_Dicom, i + 10,
                                                 "md5-" + boost::lexical_cast<std::string>(i)));
     ASSERT_FALSE(index_->IsProtectedPatient(patients[i]));
@@ -692,10 +692,10 @@ TEST(ServerIndex, Sequence)
 TEST_P(DatabaseWrapperTest, LookupIdentifier)
 {
   int64_t a[] = {
-    index_->CreateResource("a", ResourceType_Study),   // 0
-    index_->CreateResource("b", ResourceType_Study),   // 1
-    index_->CreateResource("c", ResourceType_Study),   // 2
-    index_->CreateResource("d", ResourceType_Series)   // 3
+    index_->CreateResource("a", ResourceType_Study,0),   // 0
+    index_->CreateResource("b", ResourceType_Study,0),   // 1
+    index_->CreateResource("c", ResourceType_Study,0),   // 2
+    index_->CreateResource("d", ResourceType_Series,0)   // 3
   };
 
   index_->SetIdentifierTag(a[0], DICOM_TAG_STUDY_INSTANCE_UID, "0");

@@ -41,6 +41,7 @@
 
 #include <stdio.h>
 #include <boost/lexical_cast.hpp>
+#include <string>
 
 namespace Orthanc
 {
@@ -487,4 +488,150 @@ namespace Orthanc
     }
   }
 
+  int DatabaseWrapper::getUserId(const std::string& name)
+  {
+    SQLite::Statement s(db_, SQLITE_FROM_HERE, "SELECT * FROM Users WHERE name=?");
+    s.BindString(0, name);
+
+    if(s.Step())
+    {
+     return s.ColumnInt(0);
+    }
+	return -1;
+  }
+
+  int DatabaseWrapper::SignUp(const std::string& name,const std::string& pswd,const std::string& email)
+  {
+	int id = getUserId(name);
+	if(id == -1)
+	{
+		SQLite::Statement s(db_, SQLITE_FROM_HERE, "INSERT INTO Users (name,pswd,mail) VALUES (?,?,?)");
+		s.BindString(0, name);
+		s.BindString(1, pswd);
+		s.BindString(2, email);
+		s.Run();
+		return db_.GetLastInsertRowId();
+	}
+	else
+	{
+		return -1;	//???
+	}
+  }
+  int DatabaseWrapper::SignIn(const std::string& name,const std::string& pswd)
+  {
+    SQLite::Statement s(db_, SQLITE_FROM_HERE, 
+                        "SELECT * FROM Users WHERE name=? AND pswd=?");
+    s.BindString(0, name);
+    s.BindString(1, pswd);
+	if(s.Step())
+	{
+		return s.ColumnInt(0);
+	}
+	return -1;
+  }
+
+  std::string DatabaseWrapper::getUserMail(const int id)
+  {
+    SQLite::Statement s(db_, SQLITE_FROM_HERE, "SELECT * FROM Users WHERE id=?");
+    s.BindInt(0, id);
+
+    if(s.Step())
+    {
+		return s.ColumnString(3);
+    }
+	return "";
+  }
+
+  int DatabaseWrapper::GetScanTimes(const std::string& name)
+  {
+	SQLite::Statement s(db_, SQLITE_FROM_HERE, 
+		"SELECT * FROM Users WHERE name=?");
+	s.BindString(0, name);
+	if(s.Step())
+	{
+		return s.ColumnInt(6);
+	}
+	return -1;
+  }
+
+  int DatabaseWrapper::TopUp(const std::string& name,const std::string& key)
+  {
+	int price = 0;
+	SQLite::Statement q(db_, SQLITE_FROM_HERE, 
+	  "SELECT * FROM Cards WHERE key=?");
+	q.BindString(0, key);
+	if(q.Step()){ 
+		price = q.ColumnInt(2);
+	}else{
+		return -1;
+	}
+
+	if(UpdateCREDIT(name,price)){
+		std::string d("DELETE FROM Cards WHERE key='"+key+"'");
+		if(db_.Execute(d)){
+			return 1;
+		}else{
+			UpdateCREDIT(name,price*(-1));
+			return -1;
+		}
+	 }else
+		 return -1;
+  }
+
+  bool DatabaseWrapper::Reduce(const std::string& name)
+  {
+	  return UpdateCREDIT(name,-1);
+  }
+
+ int DatabaseWrapper::Produce(const std::string& md5,const int credit)
+  {
+	  SQLite::Statement s(db_, SQLITE_FROM_HERE, "INSERT INTO Cards (key,value) VALUES (?,?)");
+	  s.BindString(0, md5);
+	  s.BindInt(1, credit);
+	  s.Run();
+	  return db_.GetLastInsertRowId();
+  }
+  
+  void DatabaseWrapper::GetTableInfo(std::vector<Json::Value>& table,const std::string& t_name)
+  {
+		 
+		 if(t_name == "Users"){
+			 Json::Value row;
+			 SQLite::Statement s(db_, SQLITE_FROM_HERE,"SELECT * FROM Users");
+			 while(s.Step()){	 
+				 row["id"]  = s.ColumnInt(0);
+				 row["username"] = s.ColumnString(1);
+				 row["password"] = s.ColumnString(2);
+				 row["mail"] = s.ColumnString(3);
+				 row["scan_times"] = s.ColumnInt(6);
+				 table.push_back(row);
+			 }
+		 }
+		 else if(t_name=="Cards"){
+			 Json::Value row;
+			 SQLite::Statement s(db_, SQLITE_FROM_HERE,"SELECT * FROM Cards");
+			 while(s.Step()){
+				 row["id"] = s.ColumnInt(0);
+				 row["key"] = s.ColumnString(1);
+				 row["value"] = s.ColumnInt(2);
+				 table.push_back(row);
+			 }
+		 }	 
+  }
+
+  bool DatabaseWrapper::UpdateCREDIT(const std::string& name,const int count)
+  {
+	  long long curCount = this->GetScanTimes(name);
+	  if(curCount == -1)
+		  return false;
+	  curCount += count;
+
+	  std::string s("UPDATE Users set scan_times="+std::to_string(curCount)+" WHERE name='"+name+"'");
+	  if(db_.Execute(s)){
+		  //LOG(WARNING) << name "";
+		  return true;
+	  }else{
+		  return false ;
+	  }
+  }
 }

@@ -70,6 +70,7 @@ set(ORTHANC_SERVER_SOURCES
   OrthancServer/OrthancRestApi/OrthancRestModalities.cpp
   OrthancServer/OrthancRestApi/OrthancRestResources.cpp
   OrthancServer/OrthancRestApi/OrthancRestSystem.cpp
+  OrthancServer/OrthancRestApi/OrthancRestAuth.cpp
   OrthancServer/QueryRetrieveHandler.cpp
   OrthancServer/Scheduler/CallSystemCommand.cpp
   OrthancServer/Scheduler/DeleteInstanceCommand.cpp
@@ -166,6 +167,7 @@ set(ORTHANC_EMBEDDED_FILES
   DICOM_CONFORMANCE_STATEMENT ${CMAKE_CURRENT_SOURCE_DIR}/Resources/DicomConformanceStatement.txt
   LUA_TOOLBOX                 ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Toolbox.lua
   FONT_UBUNTU_MONO_BOLD_16    ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Fonts/UbuntuMonoBold-16.json
+  APP_LOGIN_HTML              ${CMAKE_CURRENT_SOURCE_DIR}/OrthancExplorer/login.html
   )
 
 if (STANDALONE_BUILD)

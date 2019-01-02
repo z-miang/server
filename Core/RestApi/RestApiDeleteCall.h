@@ -46,12 +46,12 @@ namespace Orthanc
                       RestApi& context,
                       RequestOrigin origin,
                       const char* remoteIp,
-                      const char* username,
+                      int userId,
                       const IHttpHandler::Arguments& httpHeaders,
                       const IHttpHandler::Arguments& uriComponents,
                       const UriComponents& trailing,
                       const UriComponents& fullUri) :
-      RestApiCall(output, context, origin, remoteIp, username,
+      RestApiCall(output, context, origin, remoteIp, userId,
                   httpHeaders, uriComponents, trailing, fullUri)
     {
     }

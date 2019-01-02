@@ -50,6 +50,7 @@
 #include "ServerToolbox.h"
 #include "../Plugins/Engine/OrthancPlugins.h"
 #include "../Core/DicomParsing/FromDcmtkBridge.h"
+#include "../Core/HttpServer/HttpUser.h"
 
 using namespace Orthanc;
 
@@ -759,12 +760,14 @@ static bool StartHttpServer(ServerContext& context,
 
   // HTTP server
   MyIncomingHttpRequestFilter httpFilter(context, plugins);
+  MyUserAuthFilter userFilter(context);
   MongooseServer httpServer;
   httpServer.SetPortNumber(Configuration::GetGlobalUnsignedIntegerParameter("HttpPort", 8042));
   httpServer.SetRemoteAccessAllowed(Configuration::GetGlobalBoolParameter("RemoteAccessAllowed", false));
   httpServer.SetKeepAliveEnabled(Configuration::GetGlobalBoolParameter("KeepAlive", false));
   httpServer.SetHttpCompressionEnabled(Configuration::GetGlobalBoolParameter("HttpCompressionEnabled", true));
   httpServer.SetIncomingHttpRequestFilter(httpFilter);
+  httpServer.SetUserAuthFilter(userFilter);
   httpServer.SetHttpExceptionFormatter(exceptionFormatter);
 
   httpServer.SetAuthenticationEnabled(Configuration::GetGlobalBoolParameter("AuthenticationEnabled", false));

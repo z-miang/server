@@ -39,6 +39,7 @@
 #include "../Logging.h"
 #include "../ChunkedBuffer.h"
 #include "HttpToolbox.h"
+#include "EmbeddedResources.h"
 
 #if ORTHANC_ENABLE_MONGOOSE == 1
 #  include "mongoose.h"
@@ -69,6 +70,8 @@
 #endif
 
 #define ORTHANC_REALM "Orthanc Secure Area"
+
+std::map<std::string, int> session;
 
 
 namespace Orthanc
@@ -688,6 +691,29 @@ namespace Orthanc
       }
     }
 
+	int userId = 0;
+    IUserAuthFilter *auther = server.GetUserAuthFilter();
+    if (auther != NULL)
+    {
+      userId = auther->getUserId(headers);
+      if(userId<1){
+        if(Toolbox::StartsWith(request->uri, "/app/explorer.html")){
+          //output.Redirect("/app/login.html");
+		  std::string page;
+		  EmbeddedResources::GetFileResource(page, EmbeddedResources::APP_LOGIN_HTML);
+		  output.Answer(page);
+          return;
+        }
+	  }
+	  if(!auther->IsAllowed(method, request->uri, remoteIp, userId, headers, argumentsGET)){
+        if(userId<1){
+          output.SendStatus(HttpStatus_403_Forbidden);
+		  return;
+		}
+	  }
+    }
+	//std::cout<<userId<<std::endl;
+
 
     // Extract the body of the request for PUT and POST
 
@@ -758,7 +784,7 @@ namespace Orthanc
 
     if (server.HasHandler())
     {
-      found = server.GetHandler().Handle(output, RequestOrigin_RestApi, remoteIp, username.c_str(), 
+      found = server.GetHandler().Handle(output, RequestOrigin_RestApi, remoteIp, userId, 
                                          method, uri, headers, argumentsGET, body.c_str(), body.size());
     }
 
@@ -1081,6 +1107,11 @@ namespace Orthanc
     filter_ = &filter;
   }
 
+  void MongooseServer::SetUserAuthFilter(IUserAuthFilter& filter)
+  {
+    Stop();
+    userAuth_ = &filter;
+  }
 
   void MongooseServer::SetHttpExceptionFormatter(IHttpExceptionFormatter& formatter)
   {

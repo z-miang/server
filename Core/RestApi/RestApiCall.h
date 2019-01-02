@@ -51,7 +51,7 @@ namespace Orthanc
     RestApi& context_;
     RequestOrigin origin_;
     const char* remoteIp_;
-    const char* username_;
+    int userId_;
     const IHttpHandler::Arguments& httpHeaders_;
     const IHttpHandler::Arguments& uriComponents_;
     const UriComponents& trailing_;
@@ -66,7 +66,7 @@ namespace Orthanc
                 RestApi& context,
                 RequestOrigin origin,
                 const char* remoteIp,
-                const char* username,
+                int userId,
                 const IHttpHandler::Arguments& httpHeaders,
                 const IHttpHandler::Arguments& uriComponents,
                 const UriComponents& trailing,
@@ -75,7 +75,7 @@ namespace Orthanc
       context_(context),
       origin_(origin),
       remoteIp_(remoteIp),
-      username_(username),
+      userId_(userId),
       httpHeaders_(httpHeaders),
       uriComponents_(uriComponents),
       trailing_(trailing),
@@ -139,8 +139,12 @@ namespace Orthanc
 
     const char* GetUsername() const
     {
-      return username_;
+      return "";
     }
+    int GetUserId() const
+    {
+      return userId_;
+    }	
 
     virtual bool ParseJsonRequest(Json::Value& result) const = 0;
   };

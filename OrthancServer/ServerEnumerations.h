@@ -94,6 +94,10 @@ namespace Orthanc
 
     // Make sure that the value "65535" can be stored into this enumeration
     MetadataType_StartUser = 1024,
+
+    MetadataType_Folder = 1025,
+    MetadataType_FileName = 1026,
+
     MetadataType_EndUser = 65535
   };
 

@@ -66,6 +66,8 @@ namespace Orthanc
 
     void RegisterArchive();
 
+	void RegisterAuth();
+
     static void ResetOrthanc(RestApiPostCall& call);
 
     static void ShutdownOrthanc(RestApiPostCall& call);

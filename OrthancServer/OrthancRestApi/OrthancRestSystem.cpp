@@ -50,6 +50,40 @@ namespace Orthanc
     call.GetOutput().Redirect("app/explorer.html");
   }
  
+  static void GetUsers(RestApiGetCall& call)
+  {
+	  std::vector<Json::Value> table;
+	  OrthancRestApi::GetContext(call).GetIndex().GetTableInfo(table,"Users");
+	  /*
+	  for(auto val = table.begin();val != table.end();++val){
+		  call.GetOutput().AnswerJson(*val);
+	  }
+	  */
+	  Json::StyledWriter swriter;
+	  std::string str;
+	  for(auto val = table.begin();val != table.end();++val){
+		  str += swriter.write(*val);
+	  }
+	  call.GetOutput().AnswerBuffer(str, "application/json");
+  }
+
+  static void GetCards(RestApiGetCall& call)
+  {
+	  std::vector<Json::Value> table;
+	  OrthancRestApi::GetContext(call).GetIndex().GetTableInfo(table,"Cards");
+	  /*
+	  for(auto val = table.begin();val != table.end();++val){
+		  call.GetOutput().AnswerJson(*val);
+	  }
+	  */
+	  Json::StyledWriter swriter;
+	  std::string str;
+	  for(auto val = table.begin();val != table.end();++val){
+		  str += swriter.write(*val);
+	  }
+	  call.GetOutput().AnswerBuffer(str, "application/json");
+  }
+
   static void GetSystemInformation(RestApiGetCall& call)
   {
     Json::Value result = Json::objectValue;
@@ -266,11 +300,14 @@ namespace Orthanc
   }
 
 
+
   void OrthancRestApi::RegisterSystem()
   {
     Register("/", ServeRoot);
     Register("/system", GetSystemInformation);
     Register("/statistics", GetStatistics);
+	Register("/users",GetUsers);
+	Register("/cards",GetCards);
     Register("/tools/generate-uid", GenerateUid);
     Register("/tools/execute-script", ExecuteScript);
     Register("/tools/now", GetNowIsoString);

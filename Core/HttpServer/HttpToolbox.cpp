@@ -212,7 +212,7 @@ namespace Orthanc
     StringHttpOutput stream;
     HttpOutput http(stream, false /* no keep alive */);
 
-    if (handler.Handle(http, origin, LOCALHOST, "", HttpMethod_Get, curi, 
+    if (handler.Handle(http, origin, LOCALHOST, 0, HttpMethod_Get, curi, 
                        httpHeaders, getArguments, NULL /* no body for GET */, 0))
     {
       stream.GetOutput(result);
@@ -252,7 +252,7 @@ namespace Orthanc
     StringHttpOutput stream;
     HttpOutput http(stream, false /* no keep alive */);
 
-    if (handler.Handle(http, origin, LOCALHOST, "", method, curi, 
+    if (handler.Handle(http, origin, LOCALHOST, 0, method, curi, 
                        headers, getArguments, bodyData, bodySize))
     {
       stream.GetOutput(result);
@@ -300,7 +300,7 @@ namespace Orthanc
     StringHttpOutput stream;
     HttpOutput http(stream, false /* no keep alive */);
 
-    return handler.Handle(http, origin, LOCALHOST, "", HttpMethod_Delete, curi, 
+    return handler.Handle(http, origin, LOCALHOST, 0, HttpMethod_Delete, curi, 
                           headers, getArguments, NULL /* no body for DELETE */, 0);
   }
 }

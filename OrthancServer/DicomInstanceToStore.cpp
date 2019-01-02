@@ -207,7 +207,7 @@ namespace Orthanc
       case RequestOrigin_RestApi:
       {
         result["RemoteIp"] = remoteIp_;
-        result["Username"] = httpUsername_;
+        result["Username"] = "";
         break;
       }
 
@@ -241,7 +241,7 @@ namespace Orthanc
     if (origin_ == RequestOrigin_RestApi)
     {
       remoteIp_ = call.GetRemoteIp();
-      httpUsername_ = call.GetUsername();
+      httpUserId_ = call.GetUserId();
     }
   }
 
@@ -250,7 +250,7 @@ namespace Orthanc
   {
     origin_ = RequestOrigin_RestApi;
     remoteIp_ = remoteIp;
-    httpUsername_ = username;
+    //httpUsername_ = username;
   }
 
   void DicomInstanceToStore::SetLuaOrigin()

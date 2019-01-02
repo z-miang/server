@@ -347,7 +347,8 @@ extern "C"
       /* inputs */
       void* payload,
       const char* publicId,
-      OrthancPluginResourceType resourceType);           
+      OrthancPluginResourceType resourceType,
+      int userId);           
                    
     OrthancPluginErrorCode  (*deleteAttachment) (
       /* inputs */
@@ -633,6 +634,74 @@ extern "C"
       /* inputs */
       void* payload);
 
+    OrthancPluginErrorCode  (*getUserid) (
+      /* outputs */
+      int* id,
+      /* inputs */
+      void* payload,
+      const char* value);
+    OrthancPluginErrorCode  (*signUp) (
+      /* outputs */
+      int* id,
+      /* inputs */
+      void* payload,
+      const char* name,
+      const char* pswd,
+      const char* mail);
+    OrthancPluginErrorCode  (*signIn) (
+      /* outputs */
+      int* id,
+      /* inputs */
+      void* payload,
+      const char* name,
+      const char* pswd);
+    OrthancPluginErrorCode  (*getUsermail) (
+      /* outputs */
+      char* mail,
+      /* inputs */
+      void* payload,
+      const int id);
+	OrthancPluginErrorCode  (*GetScanTimes) (
+      /* outputs */
+      int* scanTime,
+      /* inputs */
+      void* payload,
+      const char* name);
+	OrthancPluginErrorCode (*TopUp)(
+		/* outputs */
+		int* count,
+		/* inputs */
+		void* payload,
+		const char* name,
+		const char* key);
+	OrthancPluginErrorCode(*Reduce)(
+		/*outputs*/
+		bool* err,
+		/*inputs*/
+		void* payload,
+		const char* name);
+	OrthancPluginErrorCode(*Produce)(
+		/*outputs*/
+		int* id,
+		/*inputs*/
+		void* payload,
+		const char* md5,
+		const int criedit);
+	OrthancPluginErrorCode(*GetTableInfo)(
+		/*output*/
+		std::vector<Json::Value>* t,
+		/*inpuit*/
+		void* payload,
+		const char* t_name);
+	
+    OrthancPluginErrorCode  (*getUserPublicIds) (
+      /* outputs */
+      OrthancPluginDatabaseContext* context,
+      /* inputs */
+      void* payload,
+      OrthancPluginResourceType resourceType,
+	  const int userId);
+
   } OrthancPluginDatabaseBackend;
 
 
@@ -682,6 +751,17 @@ extern "C"
       OrthancPluginResourceType resourceType,
       const OrthancPluginDicomTag* tag,
       OrthancPluginIdentifierConstraint constraint);
+
+    /* Output: Use OrthancPluginDatabaseAnswerString() */
+    OrthancPluginErrorCode  (*getUserPublicIdsWithLimit) (
+      /* outputs */
+      OrthancPluginDatabaseContext* context,
+      /* inputs */
+      void* payload,
+      OrthancPluginResourceType resourceType,
+	  int userId,
+      uint64_t since,
+      uint64_t limit);
    } OrthancPluginDatabaseExtensions;
 
 /*<! @endcond */

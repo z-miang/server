@@ -42,7 +42,7 @@ namespace Orthanc
   bool OrthancHttpHandler::Handle(HttpOutput& output,
                                   RequestOrigin origin,
                                   const char* remoteIp,
-                                  const char* username,
+                                  int userId,
                                   HttpMethod method,
                                   const UriComponents& uri,
                                   const Arguments& headers,
@@ -55,7 +55,7 @@ namespace Orthanc
     for (Handlers::const_iterator it = handlers_.begin(); 
          it != handlers_.end() && !found; ++it) 
     {
-      found = (*it)->Handle(output, origin, remoteIp, username, method, uri, 
+      found = (*it)->Handle(output, origin, remoteIp, userId, method, uri, 
                             headers, getArguments, bodyData, bodySize);
     }
 

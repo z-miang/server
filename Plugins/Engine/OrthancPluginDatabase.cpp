@@ -224,13 +224,13 @@ namespace Orthanc
   }
 
 
-  int64_t OrthancPluginDatabase::CreateResource(const std::string& publicId,
+  /*int64_t OrthancPluginDatabase::CreateResource(const std::string& publicId,
                                                 ResourceType type)
   {
     int64_t id;
     CheckSuccess(backend_.createResource(&id, payload_, publicId.c_str(), Plugins::Convert(type)));
     return id;
-  }
+  }*/
 
 
   void OrthancPluginDatabase::DeleteAttachment(int64_t id,
@@ -1072,6 +1072,126 @@ namespace Orthanc
       default:
         LOG(ERROR) << "Unhandled type of answer for custom index plugin: " << answer.type;
         throw OrthancException(ErrorCode_DatabasePlugin);
+    }
+  }
+
+
+
+  int64_t OrthancPluginDatabase::CreateResource(const std::string& publicId,
+                                                ResourceType type,
+                                                int userId)
+  {
+    int64_t id;
+    CheckSuccess(backend_.createResource(&id, payload_, publicId.c_str(), Plugins::Convert(type),userId));
+    return id;
+  }
+
+  int OrthancPluginDatabase::getUserId(const std::string& name)
+  {
+    int id;
+    CheckSuccess(backend_.getUserid(&id, payload_, name.c_str()));
+    return id;
+  }
+
+  int OrthancPluginDatabase::SignUp(const std::string& name,const std::string& pswd,const std::string& email)
+  {
+    int id;
+    CheckSuccess(backend_.signUp(&id, payload_, name.c_str(), pswd.c_str(), email.c_str()));
+    return id;
+  }
+  int OrthancPluginDatabase::SignIn(const std::string& name,const std::string& pswd)
+  {
+    int id;
+    CheckSuccess(backend_.signIn(&id, payload_, name.c_str(), pswd.c_str()));
+    return id;
+  }
+  std::string OrthancPluginDatabase::getUserMail(const int id)
+  {
+    char mail[255];
+    CheckSuccess(backend_.getUsermail(mail, payload_, id));
+    return mail;
+  }
+  int OrthancPluginDatabase::GetScanTimes(const std::string& name)
+  {
+	int scanTime;
+	CheckSuccess(backend_.GetScanTimes(&scanTime, payload_, name.c_str()));
+	return scanTime;
+  }
+  int OrthancPluginDatabase::TopUp(const std::string& name,const std::string& key)
+  {
+	int count;
+	CheckSuccess(backend_.TopUp(&count, payload_, name.c_str(),key.c_str()));
+	return count;  
+  }
+  bool OrthancPluginDatabase::Reduce(const std::string& name)
+  {
+	  bool err;
+	  CheckSuccess(backend_.Reduce(&err,payload_,name.c_str()));
+	  return err;
+  }
+  int OrthancPluginDatabase::Produce(const std::string& md5,const int credit)
+  {
+	  int id;
+	  CheckSuccess(backend_.Produce(&id,payload_,md5.c_str(),credit));
+	  return id;
+  }
+  void OrthancPluginDatabase::GetTableInfo(std::vector<Json::Value>& r,const std::string& t_name)
+  {
+	  CheckSuccess(backend_.GetTableInfo(&r,payload_,t_name.c_str()));
+  }
+  
+  void OrthancPluginDatabase::GetUserPublicIds(std::list<std::string>& target,
+                       ResourceType resourceType,
+					 int userId)
+  {
+    ResetAnswers();
+    CheckSuccess(backend_.getUserPublicIds(GetContext(), payload_, Plugins::Convert(resourceType), userId));
+    ForwardAnswers(target);
+  }
+
+  void OrthancPluginDatabase::GetUserPublicIds(std::list<std::string>& target,
+                                              ResourceType resourceType,
+	                                          int userId,
+                                              size_t since,
+                                              size_t limit)
+  {
+    if (extensions_.getUserPublicIdsWithLimit != NULL)
+    {
+      // This extension is available since Orthanc 0.9.4
+      ResetAnswers();
+      CheckSuccess(extensions_.getUserPublicIdsWithLimit
+                   (GetContext(), payload_, Plugins::Convert(resourceType), userId, since, limit));
+      ForwardAnswers(target);
+    }
+    else
+    {
+      // The extension is not available in the database plugin, use a
+      // fallback implementation
+      target.clear();
+
+      if (limit == 0)
+      {
+        return;
+      }
+
+      std::list<std::string> tmp;
+      GetUserPublicIds(tmp, resourceType, userId);
+    
+      if (tmp.size() <= since)
+      {
+        // Not enough results => empty answer
+        return;
+      }
+
+      std::list<std::string>::iterator current = tmp.begin();
+      std::advance(current, since);
+
+      while (limit > 0 && current != tmp.end())
+      {
+        target.push_back(*current);
+        --limit;
+        ++current;
+      }
     }
   }
 }

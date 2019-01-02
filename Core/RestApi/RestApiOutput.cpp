@@ -119,6 +119,16 @@ namespace Orthanc
     AnswerBuffer(buffer.size() == 0 ? NULL : buffer.c_str(),
                  buffer.size(), contentType);
   }
+  void RestApiOutput::AnswerBuffer(const std::string& buffer,
+                                   const std::string& contentType,
+                                   const std::string& filename)
+  {
+    CheckStatus();
+    output_.SetContentType(contentType.c_str());
+	output_.SetContentFilename(filename.c_str());
+    output_.Answer(buffer.c_str(), buffer.size());
+    alreadySent_ = true;
+  }
 
   void RestApiOutput::AnswerBuffer(const void* buffer,
                                    size_t length,

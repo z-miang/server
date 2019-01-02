@@ -330,7 +330,7 @@ namespace OrthancPlugins
     virtual void ClearExportedResources() = 0;
 
     virtual int64_t CreateResource(const char* publicId,
-                                   OrthancPluginResourceType type) = 0;
+                                   OrthancPluginResourceType type,int userId) = 0;
 
     virtual void DeleteAttachment(int64_t id,
                                   int32_t attachment) = 0;
@@ -467,6 +467,13 @@ namespace OrthancPlugins
                                  OrthancPluginStorageArea* storageArea) = 0;
 
     virtual void ClearMainDicomTags(int64_t internalId) = 0;
+
+	virtual int SignUp(const std::string& name,const std::string& pswd,const std::string& email) = 0;
+	virtual int SignIn(const std::string& name,const std::string& pswd) = 0;
+	virtual std::string getUserMail(const int id) = 0;
+	virtual int GetScanTimes(const std::string& name) = 0;
+	virtual void GetUserPublicIds(std::list<std::string>& target,OrthancPluginResourceType resourceType,int userId) = 0;
+	virtual void GetUserPublicIds(std::list<std::string>& target,OrthancPluginResourceType resourceType,int userId,size_t since,size_t limit) = 0;
   };
 
 
@@ -590,14 +597,14 @@ namespace OrthancPlugins
     static OrthancPluginErrorCode  CreateResource(int64_t* id, 
                                                   void* payload,
                                                   const char* publicId,
-                                                  OrthancPluginResourceType resourceType)
+                                                  OrthancPluginResourceType resourceType,int userId)
     {
       IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
       backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
 
       try
       {
-        *id = backend->CreateResource(publicId, resourceType);
+        *id = backend->CreateResource(publicId, resourceType, userId);
         return OrthancPluginErrorCode_Success;
       }
       catch (std::runtime_error& e)
@@ -1812,6 +1819,169 @@ namespace OrthancPlugins
       }
     }
 
+
+    static OrthancPluginErrorCode sSignUp(int* id, void* payload,
+                                                  const char* name,
+                                                  const char* pswd,
+                                                  const char* mail)
+    {
+      IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
+      backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
+
+      try
+      {
+        *id = backend->SignUp(name, pswd, mail);
+        return OrthancPluginErrorCode_Success;
+      }
+      catch (std::runtime_error& e)
+      {
+        LogError(backend, e);
+        return OrthancPluginErrorCode_DatabasePlugin;
+      }
+      catch (DatabaseException& e)
+      {
+        return e.GetErrorCode();
+      }
+    }
+
+    static OrthancPluginErrorCode sSignIn(int* id, void* payload,
+                                                  const char* name,
+                                                  const char* pswd)
+    {
+      IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
+      backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
+
+      try
+      {
+        *id = backend->SignIn(name, pswd);
+        return OrthancPluginErrorCode_Success;
+      }
+      catch (std::runtime_error& e)
+      {
+        LogError(backend, e);
+        return OrthancPluginErrorCode_DatabasePlugin;
+      }
+      catch (DatabaseException& e)
+      {
+        return e.GetErrorCode();
+      }
+    }
+
+    static OrthancPluginErrorCode sGetUserMail(char* mail, void* payload,
+                                                  const int id)
+    {
+      IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
+      backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
+
+      try
+      {
+        //*id = backend->GetUserMail(id);
+        return OrthancPluginErrorCode_Success;
+      }
+      catch (std::runtime_error& e)
+      {
+        LogError(backend, e);
+        return OrthancPluginErrorCode_DatabasePlugin;
+      }
+      catch (DatabaseException& e)
+      {
+        return e.GetErrorCode();
+      }
+    }
+	
+	static OrthancPluginErrorCode sGetScanTimes(int* scanTime, void* payload,
+                                                  const char* name)
+    {
+      IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
+      backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
+
+      try
+      {
+        //*id = backend->GetUserMail(id);
+        return OrthancPluginErrorCode_Success;
+      }
+      catch (std::runtime_error& e)
+      {
+        LogError(backend, e);
+        return OrthancPluginErrorCode_DatabasePlugin;
+      }
+      catch (DatabaseException& e)
+      {
+        return e.GetErrorCode();
+      }
+    }
+
+    static OrthancPluginErrorCode  sGetUserPublicIds(OrthancPluginDatabaseContext* context,
+                                                   void* payload,
+                                                   OrthancPluginResourceType resourceType,
+		                                           const int userId)
+    {
+      IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
+      backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
+
+      try
+      {
+        std::list<std::string> ids;
+        backend->GetUserPublicIds(ids, resourceType, userId);
+
+        for (std::list<std::string>::const_iterator
+               it = ids.begin(); it != ids.end(); ++it)
+        {
+          OrthancPluginDatabaseAnswerString(backend->GetOutput().context_,
+                                            backend->GetOutput().database_,
+                                            it->c_str());
+        }
+
+        return OrthancPluginErrorCode_Success;
+      }
+      catch (std::runtime_error& e)
+      {
+        LogError(backend, e);
+        return OrthancPluginErrorCode_DatabasePlugin;
+      }
+      catch (DatabaseException& e)
+      {
+        return e.GetErrorCode();
+      }
+    }
+
+
+    static OrthancPluginErrorCode  sGetUserPublicIdsWithLimit(OrthancPluginDatabaseContext* context,
+                                                            void* payload,
+                                                            OrthancPluginResourceType resourceType,
+		                                                    int userId,
+                                                            uint64_t since,
+                                                            uint64_t limit)
+    {
+      IDatabaseBackend* backend = reinterpret_cast<IDatabaseBackend*>(payload);
+      backend->GetOutput().SetAllowedAnswers(DatabaseBackendOutput::AllowedAnswers_None);
+
+      try
+      {
+        std::list<std::string> ids;
+        backend->GetUserPublicIds(ids, resourceType, userId, since, limit);
+
+        for (std::list<std::string>::const_iterator
+               it = ids.begin(); it != ids.end(); ++it)
+        {
+          OrthancPluginDatabaseAnswerString(backend->GetOutput().context_,
+                                            backend->GetOutput().database_,
+                                            it->c_str());
+        }
+
+        return OrthancPluginErrorCode_Success;
+      }
+      catch (std::runtime_error& e)
+      {
+        LogError(backend, e);
+        return OrthancPluginErrorCode_DatabasePlugin;
+      }
+      catch (DatabaseException& e)
+      {
+        return e.GetErrorCode();
+      }
+    }
+
     
   public:
     /**
@@ -1876,6 +2046,14 @@ namespace OrthancPlugins
       params.commitTransaction = CommitTransaction;
       params.open = Open;
       params.close = Close;
+
+      //params.getUserid = getUserId;
+      params.signUp = sSignUp;
+      params.signIn = sSignIn;
+	  params.getUsermail = sGetUserMail;
+	  params.GetScanTimes = sGetScanTimes;
+      params.getUserPublicIds = sGetUserPublicIds;
+	  extensions.getUserPublicIdsWithLimit = sGetUserPublicIdsWithLimit;
 
       extensions.getAllPublicIdsWithLimit = GetAllPublicIdsWithLimit;
       extensions.getDatabaseVersion = GetDatabaseVersion;
