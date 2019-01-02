@@ -153,7 +153,7 @@
 			flag = true;
 		}
 		//用户名只能是15位以下的字母或数字
-		var regExp = new RegExp("^[a-zA-Z0-9_]{1,15}$");
+		var regExp = new RegExp("^[a-zA-Z0-9_\-]{1,15}$");
 		if(!regExp.test(username)){
 			$.pt({
         		target: $("#login-username"),
